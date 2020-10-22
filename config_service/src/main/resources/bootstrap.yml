@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: config-server  # 应用名称
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/yue-thulium/Spring-Could-Config-Test-Demo #配置文件所在仓库
+          username: Thulium0601@163.com
+          password: wuyue,980601 登录密码
+          default-label: master #配置文件分支
+          search-paths: config  #配置文件所在根目录

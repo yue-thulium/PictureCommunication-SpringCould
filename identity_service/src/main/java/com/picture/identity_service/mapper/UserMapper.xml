@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 
+    @author Yue Wu
+    @since 2020/9/28
+ -->
+<mapper namespace="com.picture.identity_service.mapper.IUserMapper">
+
+    <resultMap id="UserFull" type="com.picture.identity_service.entity.User">
+        <id property="pc_id" column="pc_id"/>
+        <result property="username" column="username"/>
+        <result property="email" column="email"/>
+        <result property="phone" column="phone"/>
+        <result property="icon" column="icon"/>
+        <result property="pc_role" column="pc_role"/>
+        <result property="pet_name" column="pet_name"/>
+        <result property="ban" column="ban"/>
+        <result property="del_flag" column="del_flag"/>
+        <association property="role" javaType="com.picture.identity_service.entity.Role">
+            <id property="pr_id" column="pr_id"/>
+            <result property="role" column="role"/>
+            <result property="permission" column="permission"/>
+        </association>
+    </resultMap>
+
+    <select id="login" resultMap="UserFull">
+        select u.pc_id,u.username,u.email,u.phone,u.icon,u.pc_role,u.pet_name,u.ban,u.del_flag,r.pr_id,r.role,r.permission
+        from tb_pc as u left join tb_pc_role as r
+        on u.pc_role = r.pr_id
+        where u.username = #{username} and u.password = #{password}
+    </select>
+
+    <select id="getMajorInf" resultMap="UserFull">
+        select u.pc_id,u.username,u.email,u.phone,u.icon,u.pc_role,u.pet_name,u.ban,u.del_flag,r.pr_id,r.role,r.permission
+        from tb_pc as u left join tb_pc_role as r
+        on u.pc_role = r.pr_id
+        where u.pc_id=#{user_id}
+    </select>
+
+    <select id="verifyUsername" resultType="Integer">
+        select count(*) from tb_pc where username = #{username}
+    </select>
+
+    <select id="verifyEmail" resultType="Integer">
+        select count(*) from tb_pc where email = #{email}
+    </select>
+
+    <select id="verifyPhone" resultType="Integer">
+        select count(*) from tb_pc where phone = #{phone}
+    </select>
+
+
+    <insert id="register" parameterType="com.picture.identity_service.entity.User" useGeneratedKeys="true" keyProperty="pc_id">
+        insert into
+        tb_pc(pc_id, username, password, email, phone, pc_role, icon, pet_name, ban, del_flag, salt)
+        values (
+
+            default,
+            #{username},
+            #{password},
+            #{email},
+            <if test="phone != null and phone != ''">
+                #{phone},
+            </if>
+            <if test="phone == null or phone == ''">
+                default,
+            </if>
+            #{pc_role},
+            <if test="icon != null and icon != ''">
+                #{icon},
+            </if>
+            <if test="icon == null or icon == ''">
+                default,
+            </if>
+            #{pet_name},
+            1,
+            0,
+            #{salt}
+
+
+        )
+
+    </insert>
+
+    <select id="getSlat" resultType="String">
+        select salt
+        from tb_pc
+        where
+        <if test="type !=null and type == 'username'">
+            username = #{param}
+        </if>
+        <if test="type !=null and type == 'email'">
+            username = #{param}
+        </if>
+        <if test="type !=null and type == 'phone'">
+            username = #{param}
+        </if>
+    </select>
+
+    <update id="activation">
+        update tb_pc
+        set ban = 0
+        where pc_id = #{pc_id}
+    </update>
+
+</mapper>
