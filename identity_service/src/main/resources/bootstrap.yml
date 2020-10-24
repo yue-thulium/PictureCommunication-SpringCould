@@ -1,6 +1,10 @@
 spring:
   profiles:
     active: dev
+eureka:
+      client:
+        service-url:
+          defaultZone: http://localhost:8761/eureka/
 
 ---
 spring:
@@ -9,9 +13,12 @@ spring:
     name: identity_service
   cloud:
     config:
-      uri: http://localhost:8760
+      uri: http://localhost:8761/eureka/
       label: master
       profile: prod
+      discovery:
+        enabled: true
+        service-id: config-server
 
 
 ---
@@ -21,6 +28,9 @@ spring:
     name: identity_service
   cloud:
     config:
-      uri: http://localhost:8760
+      uri: http://localhost:8761/eureka/
       label: master
       profile: dev
+      discovery:
+        enabled: true
+        service-id: config-server
