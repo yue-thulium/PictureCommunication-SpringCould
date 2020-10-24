@@ -55,7 +55,7 @@
 
     <insert id="register" parameterType="com.picture.identity_service.entity.User" useGeneratedKeys="true" keyProperty="pc_id">
         insert into
-        tb_pc(pc_id, username, password, email, phone, pc_role, icon, pet_name, ban, del_flag, salt)
+        tb_pc(pc_id, username, password, email, phone, pc_role, icon, pet_name, ban, del_flag, salt, activeUUID)
         values (
 
             default,
@@ -78,7 +78,8 @@
             #{pet_name},
             1,
             0,
-            #{salt}
+            #{salt},
+            #{activeUUID}
 
 
         )
@@ -88,22 +89,41 @@
     <select id="getSlat" resultType="String">
         select salt
         from tb_pc
-        where
-        <if test="type !=null and type == 'username'">
-            username = #{param}
-        </if>
-        <if test="type !=null and type == 'email'">
-            username = #{param}
-        </if>
-        <if test="type !=null and type == 'phone'">
-            username = #{param}
-        </if>
+        <where>
+            <if test="type !=null and type == 'username'">
+                and username = #{param}
+            </if>
+            <if test="type !=null and type == 'email'">
+                and email = #{param}
+            </if>
+            <if test="type !=null and type == 'phone'">
+                and phone = #{param}
+            </if>
+        </where>
     </select>
 
     <update id="activation">
         update tb_pc
         set ban = 0
         where pc_id = #{pc_id}
+    </update>
+
+    <select id="getUUID" resultType="String">
+        select activeUUID
+        from tb_pc
+        where username = #{username}
+    </select>
+
+    <select id="getUserID" resultType="Integer">
+        select pc_id
+        from tb_pc
+        where username = #{username}
+    </select>
+
+    <update id="changeEmail">
+        update tb_pc
+        set email = #{email}
+        where username = #{username}
     </update>
 
 </mapper>

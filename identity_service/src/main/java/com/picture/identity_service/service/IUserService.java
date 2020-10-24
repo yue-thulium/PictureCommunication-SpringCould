@@ -72,4 +72,38 @@ public interface IUserService {
      * @return
      */
     String getSlat(String param,String type);
+
+    /**
+     * 获取激活用的Redis中存储的UUID
+     *  为邮件丢失，未激活时登陆选择重新发送邮件以及有相应验证缓存过期重新发送
+     *
+     *  可选的功能支持接口
+     *
+     * @param username 用户名
+     * @return 生成的UUID
+     */
+    String getUUID(String username);
+
+    /**
+     * 获取用户ID
+     *  为修改激活邮箱做准备
+     *
+     *  可选功能接口
+     *
+     * @param username 用户名
+     * @return 用户ID
+     */
+    Integer getUserID(String username);
+
+    /**
+     * 修改用户邮箱
+     *  用户在更换激活邮箱时，将数据库中的数据同时进行修改
+     *  控制层在此同时进行对新邮箱的邮件的发送
+     *  字段重复校验交由前端进行，后端提供了校验支持接口
+     *
+     * @param username 用户名
+     * @param email 新邮箱
+     * @return 判断值
+     */
+    Integer changeEmail(String username,String email);
 }

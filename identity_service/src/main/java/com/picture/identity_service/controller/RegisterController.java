@@ -1,6 +1,7 @@
 package com.picture.identity_service.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.picture.identity_service.config.ServerConfig;
 import com.picture.identity_service.entity.User;
 import com.picture.identity_service.entity.email.Mail;
 import com.picture.identity_service.entity.result.ResultMod;
@@ -51,6 +52,8 @@ public class RegisterController {
     private RedisUtil redisUtil;
     @Autowired
     private MailService mailService;
+    @Autowired
+    private ServerConfig serverConfig;
 
     /**
      * 注册方法，此处全套不进行实体内部的值的判断
@@ -76,12 +79,15 @@ public class RegisterController {
      */
     @PostMapping("/register")
     @ApiOperation(value = "用户注册接口")
-    @ApiImplicitParam(name = "user", value = "User对象", required = true)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "user", value = "User对象", required = true),
+            @ApiImplicitParam(name = "icon", value = "头像图片", required = true)
+    })
     @ApiResponses({
             @ApiResponse(code = 40010, message = "服务器发生未知错误"),
             @ApiResponse(code = 200, message = "注册成功")
     })
-    public ResultMod register(@RequestParam("user") String userStr) {
+    public ResultMod register(@RequestParam("user") String userStr, @RequestParam(value = "icon", required = false) MultipartFile file) {
         //判空，防止抛出异常
         if (userStr == null || "".equals(userStr)) {
             return resultMod.fail().code(40010).message("服务器内部错误");
@@ -94,73 +100,37 @@ public class RegisterController {
         if (user.getPet_name() == null || "".equals(user.getPet_name())) {
             user.setPet_name("用户" + new Random().nextInt(1000));
         }
+        //UUID为键，存储在Redis中，供激活使用
+        String userUUID = UUID.randomUUID().toString();
+        user.setActiveUUID(userUUID);
         //密码加密处理
         String salt = Md5Encoding.md5RandomSaltGenerate();
         user.setSalt(salt);
         user.setPassword(Md5Encoding.md5RanSaltEncode(user.getPassword() + salt));
         System.out.println(user);
-        //插入操作
-        int insert = userMapper.register(user);
+        int insert = 0;
+        //判断是否有用户头像的输入
+        if (file != null) {
+            user.setIcon(MinioUtil.getInstance().upLoadFile(file));
+            //插入操作
+            insert = userMapper.register(user);
+        } else {
+            //插入操作
+            insert = userMapper.register(user);
+        }
+        //注册成功后的激活邮箱发送逻辑
         if (insert > 0) {
-            String userID = UUID.randomUUID().toString();
-            redisUtil.set(userID, user.getPc_id());
+            //Reds保存(UUID，userID)键值对
+            redisUtil.set(userUUID, user.getPc_id(), 60 * 60 * 24);
+            //邮箱验证发送整体逻辑
             Context context = new Context();
-            context.setVariable("userId", userID);
-            Mail mail = mailService.prepareMail(context, "1359707019@qq.com");
+            context.setVariable("userId", userUUID);
+            context.setVariable("url", serverConfig.getUrl());
+            Mail mail = mailService.prepareMail(context, user.getEmail());
             mailService.sendActiveMail(mail);
             return resultMod.success().message("注册成功！");
         }
-        return resultMod.fail().code(40010).message("服务器内部错误");
-    }
-
-    /**
-     * 注册功能接口——拓展上述接口功能
-     * 核心拓展功能：添加用户头像的上传功能
-     *
-     * @param userStr JSON格式User对象
-     * @param file    用户头像文件
-     * @return
-     */
-    @PostMapping("/registerIcon")
-    @ApiOperation(value = "用户注册接口")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "user", value = "User对象", required = true),
-            @ApiImplicitParam(name = "icon", value = "头像图片", required = true)
-    })
-    @ApiResponses({
-            @ApiResponse(code = 40010, message = "服务器发生未知错误"),
-            @ApiResponse(code = 200, message = "注册成功")
-    })
-    public ResultMod register(@RequestParam("user") String userStr, @RequestParam("icon") MultipartFile file) {
-        //判空，防止抛出异常
-        if (userStr == null || file == null || "".equals(userStr)) {
-            return resultMod.fail().code(40010).message("服务器内部错误");
-        }
-        //JSON转换成Java对象
-        User user = JSON.parseObject(userStr, User.class);
-        //强制配置权限
-        user.setPc_role(1);
-        //默认用户昵称
-        if (user.getPet_name() == null || "".equals(user.getPet_name())) {
-            user.setPet_name("用户" + new Random().nextInt(1000));
-        }
-        //密码加密处理
-        String salt = Md5Encoding.md5RandomSaltGenerate();
-        user.setSalt(salt);
-        user.setPassword(Md5Encoding.md5RanSaltEncode(user.getPassword() + salt));
-        //配置用户头像
-        user.setIcon(MinioUtil.getInstance().upLoadFile(file));
-        //插入操作
-        int insert = userMapper.register(user);
-        if (insert > 0) {
-            String userID = UUID.randomUUID().toString();
-            redisUtil.set(userID, user.getPc_id());
-            Context context = new Context();
-            context.setVariable("userId", userID);
-            Mail mail = mailService.prepareMail(context, "1359707019@qq.com");
-            mailService.sendActiveMail(mail);
-            return resultMod.success().message("注册成功！");
-        }
+        //所有方法均为匹配，特殊处理返回
         return resultMod.fail().code(40010).message("服务器内部错误");
     }
 

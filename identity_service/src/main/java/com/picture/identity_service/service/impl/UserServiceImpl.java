@@ -18,7 +18,7 @@ import java.util.concurrent.Future;
 
 /**
  * IUserService接口实现类
- *      备用切面编程及多线程处理
+ * 备用切面编程及多线程处理
  *
  * @author Yue Wu
  * @since 2020/9/29
@@ -35,7 +35,8 @@ public class UserServiceImpl implements IUserService {
 
     /**
      * 登陆相关Service层接口
-     *      暂未进行特殊处理
+     * 暂未进行特殊处理
+     *
      * @param username 用户名
      * @param password 密码
      * @return
@@ -47,11 +48,11 @@ public class UserServiceImpl implements IUserService {
 
     /**
      * 信息获取接口
-     *
-     *      实现所需role的格式化传递:["role","permission"]
-     *      以及相关User信息的存储(主要保存的核心信息：[username,email,phone,pet_name,role等])
-     *      其余信息由前端设计自选，此处借口仅进行登录授权相关信息获取
-     *      和用户中心相关信息无任何关联
+     * <p>
+     * 实现所需role的格式化传递:["role","permission"]
+     * 以及相关User信息的存储(主要保存的核心信息：[username,email,phone,pet_name,role等])
+     * 其余信息由前端设计自选，此处借口仅进行登录授权相关信息获取
+     * 和用户中心相关信息无任何关联
      *
      * @param user_id 用户ID(token中存在的值)
      * @return
@@ -111,6 +112,21 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public String getSlat(String param, String type) {
-        return userMapper.getSlat(param,type);
+        return userMapper.getSlat(param, type);
+    }
+
+    @Override
+    public String getUUID(String username) {
+        return userMapper.getUUID(username);
+    }
+
+    @Override
+    public Integer getUserID(String username) {
+        return userMapper.getUserID(username);
+    }
+
+    @Override
+    public Integer changeEmail(String username, String email) {
+        return userMapper.changeEmail(username, email);
     }
 }

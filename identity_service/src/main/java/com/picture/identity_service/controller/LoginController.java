@@ -1,5 +1,6 @@
 package com.picture.identity_service.controller;
 
+import com.picture.identity_service.config.ServerConfig;
 import com.picture.identity_service.entity.User;
 import com.picture.identity_service.entity.email.Mail;
 import com.picture.identity_service.entity.result.ResultMod;
@@ -39,6 +40,9 @@ public class LoginController {
     @Autowired
     private MailService mailService;
 
+    @Autowired
+    private ServerConfig serverConfig;
+
     /**
      * 登陆并签发token
      *
@@ -74,6 +78,17 @@ public class LoginController {
             //账户激活状态判断
             if (user.getBan() == 1) {
                 //返回提示
+                String uuid = userService.getUUID(username);
+                //判断存储的UUID是否过期
+                if (!redisUtil.hasKey(uuid)) {
+                    redisUtil.set(uuid, user.getPc_id(), 60 * 60 * 24);
+                }
+                //重新进行用户激活邮件的发送
+                Context context = new Context();
+                context.setVariable("userId", uuid);
+                context.setVariable("url", serverConfig.getUrl());
+                Mail mail = mailService.prepareMail(context, user.getEmail());
+                mailService.sendActiveMail(mail);
                 return resultMod.fail().message("账户未激活，请前往注册邮箱使用最新的验证链接进行激活");
             }
             //账户使用权状态判断
@@ -96,7 +111,6 @@ public class LoginController {
     }
 
     /**
-     *
      * @param token 凭证
      * @return
      */
