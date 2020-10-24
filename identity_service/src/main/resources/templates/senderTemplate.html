@@ -7,7 +7,7 @@
 </head>
 <body>
 <p>您好, 请点击下面链接激活您的账号！</p><br/>
-<a href="#" th:href="@{ {url}(url=${url})/identity/activation/{userId}(userId=${userId}) }">激活账号</a>
+<a href="#" th:href="@{ {url}/identity/activation/{userId}(userId=${userId},url=${url}) }">激活账号</a>
 </body>
 </body>
 </html>
