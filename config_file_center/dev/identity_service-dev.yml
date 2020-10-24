@@ -1,0 +1,45 @@
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+server:
+  port: 8762
+spring:
+  application:
+    name: identity_service
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://182.92.208.18:3306/picture_communication?useUnicode=true&characterEncoding=utf-8
+    username: picCommun
+    password: Room1222
+    type: com.alibaba.druid.pool.DruidDataSource
+  redis:
+    database: 0
+    host: 182.92.208.18
+    port: 6379
+    password: Wuyue88@
+    jedis:
+      pool:
+        max-active: 100
+        max-idle: 20
+        max-wait: -1ms
+        min-idle: 0
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 100MB
+  mail:
+    username: thulium0601@163.com
+    password: NSKVWIQLNQFXJHZD
+    host: smtp.163.com
+mybatis-plus:
+  mapper-locations: classpath:com/picture/identity_service/mapper/*Mapper.xml
+  global-config:
+    db-config:
+      id-type: auto
+      field-strategy: NOT_EMPTY
+      db-type: MYSQL
+  configuration:
+    map-underscore-to-camel-case: true
+    call-setters-on-nulls: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
