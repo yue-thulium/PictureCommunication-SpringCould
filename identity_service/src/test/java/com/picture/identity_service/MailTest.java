@@ -19,17 +19,17 @@ import java.util.UUID;
 @SpringBootTest
 public class MailTest {
 
-    @Autowired
-    private MailService mailService;
-
-    @Autowired
-    private TemplateEngine templateEngine;
-
-    @Test
-    public void send() {
-        Context context = new Context();
-        context.setVariable("userId", UUID.randomUUID());
-        Mail mail = mailService.prepareMail(context,"1359707019@qq.com");
-        mailService.sendActiveMail(mail);
-    }
+//    @Autowired
+//    private MailService mailService;
+//
+//    @Autowired
+//    private TemplateEngine templateEngine;
+//
+//    @Test
+//    public void send() {
+//        Context context = new Context();
+//        context.setVariable("userId", UUID.randomUUID());
+//        Mail mail = mailService.prepareMail(context,"1359707019@qq.com");
+//        mailService.sendActiveMail(mail);
+//    }
 }

@@ -33,6 +33,8 @@
         <redis.version>2.0.4.RELEASE</redis.version>
         <commons-codec.version>1.10</commons-codec.version>
         <minio.version>4.0.0</minio.version>
+        <springcouldConfig.version>2.2.1.RELEASE</springcouldConfig.version>
+        <actuator.version>2.2.2.RELEASE</actuator.version>
     </properties>
 
     <dependencyManagement>
@@ -44,6 +46,19 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <!-- spring cloud config 客户端包 -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-config</artifactId>
+                <version>${springcouldConfig.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-actuator</artifactId>
+                <version>${actuator.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>

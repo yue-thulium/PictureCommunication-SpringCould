@@ -1,0 +1,26 @@
+spring:
+  profiles:
+    active: dev
+
+---
+spring:
+  profiles: prod
+  application:
+    name: identity_service
+  cloud:
+    config:
+      uri: http://localhost:8760
+      label: master
+      profile: prod
+
+
+---
+spring:
+  profiles: dev
+  application:
+    name: identity_service
+  cloud:
+    config:
+      uri: http://localhost:8760
+      label: master
+      profile: dev
